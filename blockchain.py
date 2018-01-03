@@ -14,7 +14,6 @@ class BlockChain :
         self.height: int = 1
         self.chain: list(bytes) = [rootBlock]
 
-    # TODO: deal with judge and over write (according to identifier)
     def Update(self, rawData : bytes, overWrite : bool) -> bool :
         assert len(rawData) % 96 == 0
         blockCount : int = len(rawData) // 96
@@ -34,15 +33,29 @@ class BlockChain :
         for i in range(1, blockCount) :
             assert(GetMd5AsHex(blocks[i-1]) == blocks[i][8:40])
 
-        self.chain = self.chain[0:dataBottom]
-        self.chain.extend(blocks)
-        self.height = dataTop + 1
-        return True
+        if overWrite:
+            self.chain = self.chain[0:dataBottom]
+            self.chain.extend(blocks)
+            self.height = dataTop + 1
+        else:
+            # check the owner of every block to decide which chain to work on
+            for i in range(0, dataTop + 1):
+                assert(self.chain[i + dataBottom][0:4] == blocks[i][0:4])
+                if (self.chain[i + dataBottom] == blocks[i]):
+                    continue
+                # the block on current working chain is smaller than coming subchain, so keep working on it
+                elif (self.chain[i + dataBottom] < blocks[i]):
+                    break
+                # switch to the coming subchain
+                elif (self.chain[i + dataBottom] > blocks[i]):
+                    self.chain = self.chain[0:i + dataBottom]
+                    self.chain.extend(blocks[i: blockCount + 1])
+                    self.height = dataTop + 1
 
+        return True
 
     def GetHeight(self) -> int :
         return self.height
-
 
     def GetRangeRaw(self, beg : int, end : int) -> bytes :
         return sum(self.chain[beg:end])
