@@ -1,7 +1,7 @@
 from blockchain import BlockChain
 
 class Sync:
-    def SyncInit(self, BC : BlockChain, localAddrPort : tuple, clientAddrPorts: list(tuple), RTO) :
+    def SyncInit(self, BC, localAddrPort, clientAddrPorts, RTO) :
         return
 
     def SyncPeer(self):
