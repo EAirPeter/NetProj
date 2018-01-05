@@ -2,12 +2,18 @@ from numpy import array_split
 from compute import GetMd5AsHex
 
 # block structure:
-# 32 content
-# 8 height
-# 4 owner id
-# 20 timestamp
-# 24 nounce
-# 32 parentHash
+# 0-31 content
+# 32-39 height
+# 40-43 owner id
+# 44-63 timestamp
+# 64-88 nounce
+# 88-119 parentHash 
+#  0123 4567 89ab cdef 0123 4567 89ab cdef 0123 4567 89ab cdef 0123 4567 89ab cdef 0123 4567 89ab cdef 0123 4567 89ab cdef 0123 4567 89ab cdef 0123 4567
+# +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
+# |                 content               | height  | id |        timestamp       |            nouce            |         parent hash val as hex        |
+# +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
+# for example:
+# Implementing a block chain      000000000000Jan  5 00:00:00 19700000000000000000000000000000000000000000000000000000
 rootBlock = b''.join([b'Implementing a block chain      ',
                       b'00000000',
                       b'0000',
