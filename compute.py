@@ -1,11 +1,11 @@
 def GetMd5AsHex(block : bytes) -> bytes :
-    md5Val = bytes(32)
+    md5Val = b'hashval placeholder'.ljust(32)
     return md5Val
 
 
-def GetValidNode(height : bytes, id : bytes, parentHash : bytes,
-                 data : bytes, timestamp : bytes) -> bytes:
-    assert len(height) == 4 and len(id) == 4 and len(parentHash) == 32 \
-           and len(data) == 32 and len(timestamp) == 8
-    nounce = bytes(16)
-    return height + id + parentHash + data + timestamp + nounce
+def GetValidNode(content : bytes, height : bytes, id : bytes,
+                 timestamp: bytes, parentHash : bytes) -> bytes:
+    assert len(content) == 32 and len(height) == 8 and len(id) == 4 \
+           and len(timestamp) == 20 and len(parentHash) == 32
+    nounce = b'placeholder'.ljust(24)
+    return content + height + id + timestamp + nounce + parentHash
