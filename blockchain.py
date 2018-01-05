@@ -33,10 +33,13 @@ class BlockChain :
         self.height: int = 1
         self.chain: list(bytes) = [rootBlock]
 
-    # return value: 0 (current working chain far too short than incoming chain)
-    #               1 (first block of incoming subchain failed to match any father block,
-    #                  therefore there is no way to link this subchain to working chain)
-    #               2 ()
+    # return value: 0 : current working chain far too short than incoming chain
+    #               1 : first block of incoming subchain failed to match any father block,
+    #                   therefore there is no way to link this subchain to working chain
+    #               3 : updated successfully
+    # only can be returned when overWrite is False
+    #               2 : forked, and the corresponding incoming chain needs to be updated
+    #                           (while currenting working one not)
     def Update(self, rawData : bytes, overWrite : bool) -> int :
         assert len(rawData) % 120 == 0
         blockCount : int = len(rawData) // 120
@@ -80,6 +83,7 @@ class BlockChain :
                     self.chain.extend(blocks[i: blockCount + 1])
                     self.height = dataTop + 1
                     return 3
+            return 3
 
     def GetHeight(self) -> int :
         return self.height
