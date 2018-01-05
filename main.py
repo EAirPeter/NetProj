@@ -5,7 +5,7 @@ from blockchain import BlockChain
 from compute import GetValidNode
 from compute import GetMd5AsHex
 
-configFilePath = '.\config.cfg'
+configFilePath = '.\\config.cfg'
 contentFilePath = '.\\artical.txt'
 logFilePath = '.\\log.txt'
 
@@ -13,13 +13,12 @@ logFilePath = '.\\log.txt'
 def GetEffectiveData(words: list(str)):
     EffectiveData : list(bytes) = []
     while len(words) > 0:
-        contentOfBlock = bytes()
+        contentOfBlock = bytes(words.pop(0), 'utf-8')
         # put words into contentOfBlock while keeping its length less than 32
-        while len(words) > 0 and len(contentOfBlock) + len(words[0]) < 32:
-            contentOfBlock += bytes(words.pop(0), 'utf-8')
+        while len(words) > 0 and len(contentOfBlock) + len(words[0]) + 1 < 32:
+            contentOfBlock += b' ' + bytes(words.pop(0), 'utf-8')
         # padding to 32
-        contentOfBlock.ljust(32)
-        EffectiveData.append(content)
+        EffectiveData.append(contentOfBlock.ljust(32))
 
     return EffectiveData
 
@@ -31,7 +30,7 @@ if __name__ == '__main__':
     difficulty = float(configParser.get('overall-config', 'difficulty'))
     localAddr : str = configParser.get('local-config', 'ipAddr')
     localPort : int = int(configParser.get('local-config', 'port'))
-    localId : bytes = bytes(configParser.get('local-config', 'id'))
+    localId : bytes = bytes(configParser.get('local-config', 'id'), 'utf-8')
     RTO = int(configParser.get('local-config', 'RTO'))
 
     optNames = configParser.options('peer-config')
@@ -45,6 +44,7 @@ if __name__ == '__main__':
 
     file = open(contentFilePath, 'r')
     words = (file.readline()).split(' ')
+    print(type(words))
     file.close()
     effectiveData = GetEffectiveData(words)
 
