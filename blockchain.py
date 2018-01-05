@@ -33,7 +33,11 @@ class BlockChain :
         self.height: int = 1
         self.chain: list(bytes) = [rootBlock]
 
-    def Update(self, rawData : bytes, overWrite : bool) -> bool :
+    # return value: 0 (current working chain far too short than incoming chain)
+    #               1 (first block of incoming subchain failed to match any father block,
+    #                  therefore there is no way to link this subchain to working chain)
+    #               2 ()
+    def Update(self, rawData : bytes, overWrite : bool) -> int :
         assert len(rawData) % 120 == 0
         blockCount : int = len(rawData) // 120
         blocks : list(bytes) = [rawData]
@@ -42,13 +46,13 @@ class BlockChain :
         parentHash: bytes = GetParentHash(blocks[0])
 
         if dataBottom > self.height:
-            return False
+            return 0
 
         # check if it can be linked to chain
         if GetMd5AsHex(self.chain[dataBottom - 1]) != parentHash:
-            return False
+            return 1
 
-        # assert its a valid chain
+        # assert it is a valid chain
         for i in range(1, blockCount) :
             assert(GetMd5AsHex(blocks[i-1]) == GetParentHash(blocks[i]))
 
@@ -56,6 +60,7 @@ class BlockChain :
             self.chain = self.chain[0:dataBottom]
             self.chain.extend(blocks)
             self.height = dataTop + 1
+            return 3
         else:
             # check the owner of every block to decide which chain to work on
             for i in range(0, dataTop + 1):
@@ -67,15 +72,14 @@ class BlockChain :
                 # the block on current working chain is smaller than coming subchain, so keep working on it
                 elif GetBlockOwner(self.chain[i + dataBottom]) \
                    < GetBlockOwner(blocks[i]):
-                    break
-                # switch to the coming subchain
+                    return 2
+                # switch to the corresponding chain of incoming subchain
                 elif GetBlockOwner(self.chain[i + dataBottom]) \
                    > GetBlockOwner(blocks[i]):
                     self.chain = self.chain[0:i + dataBottom]
                     self.chain.extend(blocks[i: blockCount + 1])
                     self.height = dataTop + 1
-
-        return True
+                    return 3
 
     def GetHeight(self) -> int :
         return self.height
