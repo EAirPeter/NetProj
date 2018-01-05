@@ -58,7 +58,7 @@ if __name__ == '__main__':
 
         parentHash = GetMd5AsHex(BC.GetTop())
         timestamp = bytes(time.asctime()[4:24], 'utf-8')
-        Node = GetValidNode(content, height, localId, timestamp, parentHash)
+        Node = GetValidNode(content, height, localId, timestamp, parentHash, difficulty)
 
         if Node is not None:
             BC.Update(Node, False)
