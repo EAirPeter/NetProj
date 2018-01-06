@@ -43,11 +43,11 @@ class Sync:
             (peer, pkt) = self._RecvPkt()
             if peer is None:
                 break
-            if pkt[0] == kNmPsh:
+            if pkt[0] == Sync.kNmPsh:
                 res = self._OnNmPsh(peer, pkt[1], pkt[2], pkt[3])
                 if res is not None:
                     return res
-            elif pkt[0] == kRvPll:
+            elif pkt[0] == Sync.kRvPll:
                 self._OnRvPll(peer, pkt[1], pkt[2], pkt[3])
         return None
     
@@ -117,7 +117,7 @@ class Sync:
                 (peer, pkt) = self._RecvPkt()
                 if peer is None:
                     break
-                if pkt[0] != kRvPsh:
+                if pkt[0] != Sync.kRvPsh:
                     continue
                 if pkt[1] not in seqs:
                     continue
@@ -147,38 +147,38 @@ class Sync:
     def _OnRvPll(self, peer: SockAddr, seqnum: int, hbeg: int, hend: int) -> None:
         hmax = self._bc.GetHeight()
         blocks = self._bc.GetRangeRaw(hbeg, hend)
-        self._sock.sendto(struct.pack('<sLHs', kRvPsh, seqnum, hmax, blocks))
+        self._sock.sendto(struct.pack('<sLHs', Sync.kRvPsh, seqnum, hmax, blocks), peer)
 
     def _DoRvPll(self, peer: SockAddr, hbeg: int, hend: int) -> int:
         seqnum = self._seq
         self._seq += 1
-        self._sock.sendto(struct.pack('<sLHH', kRvPll, seqnum, hbeg, hend))
+        self._sock.sendto(struct.pack('<sLHH', Sync.kRvPll, seqnum, hbeg, hend), peer)
         return seqnum
 
     def _DoNmPsh(self, peer: SockAddr) -> None:
         hmax = self._bc.GetHeight()
         hbeg = max(0, hmax - Sync.kNBlock)
         blocks = self._bc.GetRangeRaw(hbeg, hmax)
-        self._sock.sendto(struct.pack('<sLHs', kNmPsh, 0, hmax, blocks))
+        self._sock.sendto(struct.pack('<sLHs', Sync.kNmPsh, 0, hmax, blocks), peer)
     
     def _RecvPkt(self) -> Tuple[Optional[SockAddr], Optional[tuple]]:
         while True:
             try:
                 (data, peer) = self._sock.recvfrom(Sync.kBufLen)
-            except BlockingIOError:
+            except:
                 data = None
             if data is None:
                 break
             if len(data) < 8:
                 continue
             header = data[:4]
-            if header == kNmPsh or header == kRvPsh:
+            if header == Sync.kNmPsh or header == Sync.kRvPsh:
                 if len(data) < 10 or (len(data) - 10) % Sync.kZBlock != 0:
                     continue
                 (seqnum, hmax) = struct.unpack('<LH', data[4:])
                 blocks = data[10:]
                 return (peer, (header, seqnum, hmax, blocks))
-            elif header == kRvPll:
+            elif header == Sync.kRvPll:
                 if len(data) != 12:
                     continue
                 (seqnum, hbeg, hend) = struct.unpack('<LHH', data[4:])
