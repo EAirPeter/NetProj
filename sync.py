@@ -95,7 +95,7 @@ class Sync:
             while not pshs:
                 pshs = self._PullRound(hbeg, hmax)
                 pshs = [psh for psh in pshs if psh[0] >= self._bc.GetHeight()]
-            if len[pshs] == 1:
+            if len(pshs) == 1:
                 res = self._bc.Update(pshs[0][1], True)
             elif pshs[0][0] > pshs[1][0]:
                 res = self._bc.Update(pshs[0][1], True)
@@ -121,8 +121,8 @@ class Sync:
                     continue
                 if pkt[1] not in seqs:
                     continue
-                pshs += (pkt[2], pkt[3])
-                if len(pkts) == 2:
+                pshs.append((pkt[2], pkt[3]))
+                if len(pshs) == 2:
                     return pshs
             time.sleep(0.020)
             if time.time() > due:
@@ -135,7 +135,9 @@ class Sync:
         if hmax < self._bc.GetHeight():
             self._DoNmPsh(peer)
             return None
+        hcur = self._bc.GetHeight()
         res = self._bc.Update(blocks, False)
+        print("%d %d %d\n" % (hmax, hcur, res))
         if res == 0:
             return False
         elif res == 1:
@@ -147,19 +149,19 @@ class Sync:
     def _OnRvPll(self, peer: SockAddr, seqnum: int, hbeg: int, hend: int) -> None:
         hmax = self._bc.GetHeight()
         blocks = self._bc.GetRangeRaw(hbeg, hend)
-        self._sock.sendto(struct.pack('<sLHs', Sync.kRvPsh, seqnum, hmax, blocks), peer)
+        self._sock.sendto(struct.pack('<4sLH', Sync.kRvPsh, seqnum, hmax) + blocks, peer)
 
     def _DoRvPll(self, peer: SockAddr, hbeg: int, hend: int) -> int:
         seqnum = self._seq
         self._seq += 1
-        self._sock.sendto(struct.pack('<sLHH', Sync.kRvPll, seqnum, hbeg, hend), peer)
+        self._sock.sendto(struct.pack('<4sLHH', Sync.kRvPll, seqnum, hbeg, hend), peer)
         return seqnum
 
     def _DoNmPsh(self, peer: SockAddr) -> None:
         hmax = self._bc.GetHeight()
         hbeg = max(0, hmax - Sync.kNBlock)
         blocks = self._bc.GetRangeRaw(hbeg, hmax)
-        self._sock.sendto(struct.pack('<sLHs', Sync.kNmPsh, 0, hmax, blocks), peer)
+        self._sock.sendto(struct.pack('<4sLH', Sync.kNmPsh, 0, hmax) + blocks, peer)
     
     def _RecvPkt(self) -> Tuple[Optional[SockAddr], Optional[tuple]]:
         while True:
@@ -175,12 +177,12 @@ class Sync:
             if header == Sync.kNmPsh or header == Sync.kRvPsh:
                 if len(data) < 10 or (len(data) - 10) % Sync.kZBlock != 0:
                     continue
-                (seqnum, hmax) = struct.unpack('<LH', data[4:])
+                (seqnum, hmax) = struct.unpack_from('<LH', data, 4)
                 blocks = data[10:]
                 return (peer, (header, seqnum, hmax, blocks))
             elif header == Sync.kRvPll:
                 if len(data) != 12:
                     continue
-                (seqnum, hbeg, hend) = struct.unpack('<LHH', data[4:])
+                (seqnum, hbeg, hend) = struct.unpack_from('<LHH', data, 4)
                 return (peer, (header, seqnum, hbeg, hend))
         return (None, None)
