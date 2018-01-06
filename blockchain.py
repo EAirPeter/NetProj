@@ -1,12 +1,31 @@
 from numpy import array_split
 from compute import GetMd5AsHex
 
+# block structure:
+# 32 content
+# 8 height
+# 4 owner id
+# 20 timestamp
+# 24 nounce
+# 32 parentHash
+rootBlock = b''.join([b'Implementing a block chain      ',
+                      b'00000000',
+                      b'0000',
+                      b'Jan  5 00:00:00 1970',
+                      b'00000000000000000000',
+                      b'00000000000000000000000000000000'])
 
-rootBlock = sum( [b'0000', b'0000',
-                  b'00000000000000000000000000000000',
-                  b'Implementing a block chain      ',
-                  b'00:00:00',
-                  b'0000000000000000'] )
+
+def GetBlockHeight(block):
+    return block[32:40]
+
+
+def GetParentHash(block):
+    return block[88:120]
+
+
+def GetBlockOwner(block):
+    return block[40:44]
 
 
 class BlockChain :
@@ -15,12 +34,12 @@ class BlockChain :
         self.chain: list(bytes) = [rootBlock]
 
     def Update(self, rawData : bytes, overWrite : bool) -> bool :
-        assert len(rawData) % 96 == 0
-        blockCount : int = len(rawData) // 96
-        blocks : list(bytes) = [rawData ]
-        dataBottom : int = int(blocks[0][0:4])
-        dataTop : int = int(blocks[-1][0:4])
-        parentHash: bytes = blocks[0][8:40]
+        assert len(rawData) % 120 == 0
+        blockCount : int = len(rawData) // 120
+        blocks : list(bytes) = [rawData]
+        dataBottom : int = int(GetBlockHeight(blocks[0]))
+        dataTop : int = int(GetBlockHeight(blocks[-1]))
+        parentHash: bytes = GetParentHash(blocks[0])
 
         if dataBottom > self.height:
             return False
@@ -31,23 +50,27 @@ class BlockChain :
 
         # assert its a valid chain
         for i in range(1, blockCount) :
-            assert(GetMd5AsHex(blocks[i-1]) == blocks[i][8:40])
+            assert(GetMd5AsHex(blocks[i-1]) == GetParentHash(blocks[i]))
 
-        if overWrite:
+        if overWrite or dataBottom == self.height:
             self.chain = self.chain[0:dataBottom]
             self.chain.extend(blocks)
             self.height = dataTop + 1
         else:
             # check the owner of every block to decide which chain to work on
             for i in range(0, dataTop + 1):
-                assert(self.chain[i + dataBottom][0:4] == blocks[i][0:4])
-                if (self.chain[i + dataBottom] == blocks[i]):
+                assert(GetBlockHeight(self.chain[i + dataBottom])
+                     == GetBlockHeight(blocks[i]))
+                if GetBlockOwner(self.chain[i + dataBottom]) \
+                == GetBlockOwner(blocks[i]):
                     continue
                 # the block on current working chain is smaller than coming subchain, so keep working on it
-                elif (self.chain[i + dataBottom] < blocks[i]):
+                elif GetBlockOwner(self.chain[i + dataBottom]) \
+                   < GetBlockOwner(blocks[i]):
                     break
                 # switch to the coming subchain
-                elif (self.chain[i + dataBottom] > blocks[i]):
+                elif GetBlockOwner(self.chain[i + dataBottom]) \
+                   > GetBlockOwner(blocks[i]):
                     self.chain = self.chain[0:i + dataBottom]
                     self.chain.extend(blocks[i: blockCount + 1])
                     self.height = dataTop + 1
@@ -58,7 +81,7 @@ class BlockChain :
         return self.height
 
     def GetRangeRaw(self, beg : int, end : int) -> bytes :
-        return sum(self.chain[beg:end])
+        return b''.join(self.chain[beg:end])
 
     def GetTop(self) -> bytes:
         return self.chain[-1]

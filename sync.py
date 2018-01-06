@@ -1,4 +1,5 @@
 from blockchain import BlockChain
+from typing import List, Optional, Tuple
 
 import random
 import socket

@@ -1,24 +1,24 @@
+import time
 import configparser
 from blockchain import BlockChain
 from compute import GetValidNode
 from compute import GetMd5AsHex
-import time
+
 
 configFilePath = '.\\config.cfg'
 contentFilePath = '.\\artical.txt'
 logFilePath = '.\\log.txt'
 
 
-def GetEffectiveData(words: list(str)):
-    EffectiveData : list(bytes) = []
+def GetEffectiveData(words):
+    EffectiveData = []
     while len(words) > 0:
-        contentOfBlock = bytes()
+        contentOfBlock = bytes(words.pop(0), 'utf-8')
         # put words into contentOfBlock while keeping its length less than 32
-        while len(words) > 0 and len(contentOfBlock) + len(words[0]) < 32:
-            contentOfBlock += bytes(words.pop(0), 'utf-8')
+        while len(words) > 0 and len(contentOfBlock) + len(words[0]) + 1 < 31:
+            contentOfBlock += b' ' + bytes(words.pop(0), 'utf-8')
         # padding to 32
-        contentOfBlock.ljust(32)
-        EffectiveData.append(content)
+        EffectiveData.append(contentOfBlock.ljust(32))
 
     return EffectiveData
 
@@ -30,10 +30,11 @@ if __name__ == '__main__':
     difficulty = float(configParser.get('overall-config', 'difficulty'))
     localAddr = configParser.get('local-config', 'ipaddr')
     localPort = int(configParser.get('local-config', 'port'))
+    localId = bytes(configParser.get('local-config', 'id'), 'utf-8')
     RTO = int(configParser.get('local-config', 'RTO'))
 
     optNames = configParser.options('peer-config')
-    peerAddrPortPairs : list((str, int)) = []
+    peerAddrPortPairs = []
 
     for optName in optNames:
         addrPort = configParser.get('peer-config', optName)
@@ -41,23 +42,26 @@ if __name__ == '__main__':
         port = int(port)
         peerAddrPortPairs.append((ipaddr, port))
 
-    file = open(contentFilePath, 'r')
+    file = open(contentFilePath, 'r', encoding='utf-8')
+    words = file.readline().split(' ')
+    effectiveData = GetEffectiveData(words)
     file.close()
-    words = (file.readline()).split(' ')
 
-    while len(words) > 0:
-        height : bytes = bytes(BC.height).ljust(4, b' ')
-        content : bytes = bytes()
-        while len(words) > 0 and len(content) + len(words[0]) < 32:
-            content += bytes(words.pop(0), 'utf-8')
-        content.ljust(32)
+    while BC.height < len(effectiveData):
+        height = bytes(str(BC.height), 'utf-8').ljust(8, b' ')
+        content = effectiveData[BC.height]
 
-        parentHash : bytes = GetMd5AsHex(BC.GetTop())
+        parentHash = GetMd5AsHex(BC.GetTop())
 
-        timestamp = time.asctime()[11:19]
+        timestamp = bytes(time.asctime()[4:24], 'utf-8')
         Node = None
         while Node is None:
-            Node = GetValidNode(height, b' single ', parentHash, content, timestamp)
-            timestamp = time.asctime()[11:19]
-        BC.Update(Node, False)
+            Node = GetValidNode(content, height, localId, timestamp, parentHash)
+            timestamp = time.asctime()[4:24]
+        BC.Update(Node, True)
+
+    # print chain
+    for i in range(BC.height):
+        print(str(BC.chain[i])[2:-1])
+
 
