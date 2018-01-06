@@ -6,7 +6,7 @@ from compute import GetValidNode
 from compute import GetMd5AsHex
 
 configFilePath = '.\\config.cfg'
-contentFilePath = '.\\artical.txt'
+contentFilePath = '.\\article.txt'
 logFilePath = '.\\log.txt'
 
 
