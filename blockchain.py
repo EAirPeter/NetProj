@@ -49,16 +49,20 @@ class BlockChain :
     def Update(self, rawData : bytes, overWrite : bool) -> int :
         assert len(rawData) % 120 == 0
         blockCount : int = len(rawData) // 120
-        blocks : list(bytes) = [rawData]
+        blocks : list(bytes) = [rawData[i * 120 : i * 120 + 120] for i in range(0, blockCount)]
         dataBottom : int = int(GetBlockHeight(blocks[0]))
         dataTop : int = int(GetBlockHeight(blocks[-1]))
-        parentHash: bytes = GetParentHash(blocks[0])
 
         if dataBottom > self.height:
             return 0
 
+        if dataBottom == 0:
+            dataBottom = dataBottom + 1
+            blocks = blocks[1:]
+            blockCount = blockCount - 1
+
         # check if it can be linked to chain
-        if GetMd5AsHex(self.chain[dataBottom - 1]) != parentHash:
+        if GetMd5AsHex(self.chain[dataBottom - 1]) != GetParentHash(blocks[0]):
             return 1
 
         # assert it is a valid chain
@@ -72,7 +76,7 @@ class BlockChain :
             return 3
         else:
             # check the owner of every block to decide which chain to work on
-            for i in range(0, dataTop + 1):
+            for i in range(0, blockCount):
                 assert(GetBlockHeight(self.chain[i + dataBottom])
                      == GetBlockHeight(blocks[i]))
                 if GetBlockOwner(self.chain[i + dataBottom]) \
