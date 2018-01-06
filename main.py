@@ -6,7 +6,7 @@ from compute import GetValidNode
 from compute import GetMd5AsHex
 
 configFilePath = '.\\config.cfg'
-contentFilePath = '.\\artical.txt'
+contentFilePath = '.\\article.txt'
 logFilePath = '.\\log.txt'
 
 
@@ -47,10 +47,9 @@ if __name__ == '__main__':
     effectiveData = GetEffectiveData(words)
     file.close()
 
-    syncer = sync.Sync()
     localAddrPort = (localAddr, localPort)
-    syncer.SyncInit(BC, localAddrPort, peerAddrPortPairs, RTO)
-
+    syncer = sync.Sync(BC, localAddrPort, peerAddrPortPairs, RTO)
+    
     while BC.height < len(effectiveData):
         # work out the component in the block we are going to dig in this round
         height = bytes(str(BC.height), 'utf-8').ljust(8, b' ')
@@ -62,7 +61,7 @@ if __name__ == '__main__':
 
         if Node is not None:
             BC.Update(Node, False)
-        syncer.SyncPeer()
+        syncer.DoSync()
 
     # print chain
     for i in range(BC.height):
