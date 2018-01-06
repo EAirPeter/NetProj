@@ -60,6 +60,7 @@ class BlockChain :
             dataBottom = dataBottom + 1
             blocks = blocks[1:]
             blockCount = blockCount - 1
+            print(dataBottom, blocks, blockCount)
 
         # check if it can be linked to chain
         if GetMd5AsHex(self.chain[dataBottom - 1]) != GetParentHash(blocks[0]):
@@ -69,7 +70,7 @@ class BlockChain :
         for i in range(1, blockCount) :
             assert(GetMd5AsHex(blocks[i-1]) == GetParentHash(blocks[i]))
 
-        if overWrite or dataBottom == self.height:
+        if overWrite or dataBottom == self.height or dataTop >= self.height:
             self.chain = self.chain[0:dataBottom]
             self.chain.extend(blocks)
             self.height = dataTop + 1
