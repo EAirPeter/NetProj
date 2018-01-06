@@ -137,7 +137,6 @@ class Sync:
             return None
         hcur = self._bc.GetHeight()
         res = self._bc.Update(blocks, False)
-        print("%d %d %d\n" % (hmax, hcur, res))
         if res == 0:
             return False
         elif res == 1:

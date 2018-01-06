@@ -31,7 +31,7 @@ if __name__ == '__main__':
     localAddr = configParser.get('local-config', 'ipaddr')
     localPort = int(configParser.get('local-config', 'port'))
     localId = bytes(configParser.get('local-config', 'id'), 'utf-8')
-    RTO = int(configParser.get('local-config', 'RTO'))
+    RTO = float(configParser.get('local-config', 'RTO'))
 
     optNames = configParser.options('peer-config')
     peerAddrPortPairs = []

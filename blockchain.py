@@ -60,7 +60,6 @@ class BlockChain :
             dataBottom = dataBottom + 1
             blocks = blocks[1:]
             blockCount = blockCount - 1
-            print(dataBottom, blocks, blockCount)
 
         # check if it can be linked to chain
         if GetMd5AsHex(self.chain[dataBottom - 1]) != GetParentHash(blocks[0]):
