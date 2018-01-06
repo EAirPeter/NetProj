@@ -23,7 +23,7 @@ class Sync:
     def __init__(self, bc: BlockChain, localAddr : SockAddr, peersAddr : List[SockAddr], rto : float) -> None:
         self._bc = bc
         self._peers = peersAddr
-        self._peers(localAddr)
+        self._peers.remove(localAddr)
         self._sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self._sock.setblocking(False)
         self._sock.bind(localAddr)
