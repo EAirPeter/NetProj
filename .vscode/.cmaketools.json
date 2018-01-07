@@ -1,0 +1,54 @@
+{
+  "variant": {
+    "label": "Debug",
+    "keywordSettings": {
+      "buildType": "debug"
+    },
+    "description": "Emit debug information without performing optimizations"
+  },
+  "activeEnvironments": [],
+  "codeModel": {
+    "configurations": [
+      {
+        "name": "Debug",
+        "projects": [
+          {
+            "buildDirectory": "/home/mike/workspace/homework/NetProj/build",
+            "name": "Project",
+            "sourceDirectory": "/home/mike/workspace/homework/NetProj",
+            "targets": [
+              {
+                "artifacts": [
+                  "/home/mike/workspace/homework/NetProj/build/libmd5.so"
+                ],
+                "buildDirectory": "/home/mike/workspace/homework/NetProj/build",
+                "fileGroups": [
+                  {
+                    "compileFlags": "-g -fPIC  ",
+                    "defines": [
+                      "md5_EXPORTS"
+                    ],
+                    "isGenerated": false,
+                    "language": "CXX",
+                    "sources": [
+                      "md5.cpp"
+                    ]
+                  }
+                ],
+                "fullName": "libmd5.so",
+                "linkLibraries": "-lssl",
+                "linkerLanguage": "CXX",
+                "name": "md5",
+                "sourceDirectory": "/home/mike/workspace/homework/NetProj",
+                "type": "SHARED_LIBRARY"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "cookie": "0.2923143581595917",
+    "inReplyTo": "codemodel",
+    "type": "reply"
+  }
+}
