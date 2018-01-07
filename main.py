@@ -6,8 +6,6 @@ from blockchain import BlockChain
 from compute import GetValidNode
 from compute import GetMd5AsHex
 
-# configFilePath = '.\\config.cfg'
-contentFilePath = '.\\article.txt'
 logFilePath = '.\\log.txt'
 
 
@@ -26,11 +24,11 @@ def GetEffectiveData(words):
 
 if __name__ == '__main__':
     configFilePath = argv[1]
-    print(configFilePath)
     BC = BlockChain()
     configParser = configparser.RawConfigParser()
     configParser.read(configFilePath)
     difficulty = float(configParser.get('overall-config', 'difficulty'))
+    contentFilePath = configParser.get('overall-config', 'contentFilePath')
     localAddr = configParser.get('local-config', 'ipaddr')
     localPort = int(configParser.get('local-config', 'port'))
     localId = bytes(configParser.get('local-config', 'id'), 'utf-8')
