@@ -45,7 +45,7 @@ extern "C" void md5(unsigned char *digest, const char *str) {
   MD5_Update(&c, str + 96, 24);
   MD5_Final(digest, &c);
   for (int i = 30; i >= 0; i -= 2) {
-    digest[i+1] = charset[digest[i/2] >> 4];
-    digest[i] = charset[digest[i/2] & 0xF];
+    digest[i+1] = charset[digest[i/2] & 0xF];
+    digest[i] = charset[digest[i/2] >> 4];
   }
 }
