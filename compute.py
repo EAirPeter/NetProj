@@ -1,9 +1,9 @@
+from __future__ import print_function
+import sys
 import hashlib
 import random
 from ctypes import *
 handle = cdll.LoadLibrary("build/libmd5.so")
-from __future__ import print_function
-import sys
 
 def eprint(*args, **kwargs):
     print(*args, file=sys.stderr, **kwargs)
