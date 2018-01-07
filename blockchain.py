@@ -5,11 +5,11 @@ from compute import GetMd5AsHex
 # 32-39 height
 # 40-43 owner id
 # 44-63 timestamp
-# 64-87 nounce
-# 88-119 parentHash 
+# 64-95 parentHash 
+# 96-120 nounce
 #  0123 4567 89ab cdef 0123 4567 89ab cdef 0123 4567 89ab cdef 0123 4567 89ab cdef 0123 4567 89ab cdef 0123 4567 89ab cdef 0123 4567 89ab cdef 0123 4567
 # +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
-# |                 content               | height  | id |        timestamp       |            nouce            |         parent hash val as hex        |
+# |                 content               | height  | id |        timestamp       |         parent hash val as hex        |            nounce           |
 # +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
 # for example:
 # Implementing a block chain      000000000000Jan  5 00:00:00 19700000000000000000000000000000000000000000000000000000
@@ -17,8 +17,8 @@ rootBlock = b''.join([b'Implementing a block chain      ',
                       b'00000000',
                       b'0000',
                       b'Jan  5 00:00:00 1970',
-                      b'000000000000000000000000',
-                      b'00000000000000000000000000000000'])
+                      b'00000000000000000000000000000000',
+                      b'000000000000000000000000'])
 
 
 def GetBlockHeight(block):
@@ -26,7 +26,7 @@ def GetBlockHeight(block):
 
 
 def GetParentHash(block):
-    return block[88:120]
+    return block[64:96]
 
 
 def GetBlockOwner(block):
