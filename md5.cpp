@@ -15,7 +15,7 @@ extern "C" int md5_compute(char *str, unsigned long long difficulty) {
   };
   MD5_Init(&c);
   MD5_Update(&c, str, 96);
-  int count = 1 << 20;
+  int count = 1 << 17;
   int seed;
   timeval t;
   gettimeofday(&t, NULL);
