@@ -2,7 +2,11 @@ import hashlib
 import random
 from ctypes import *
 handle = cdll.LoadLibrary("build/libmd5.so")
+from __future__ import print_function
+import sys
 
+def eprint(*args, **kwargs):
+    print(*args, file=sys.stderr, **kwargs)
 
 def GetMd5AsHex(block: bytes) -> bytes:
     digest = create_string_buffer(32)
@@ -21,7 +25,7 @@ def GetValidNode(content: bytes, height: bytes, id: bytes,
     buffer = create_string_buffer(tryBlock)
     if handle.md5_compute(buffer, c_ulonglong(int(2**45 * difficulty))) == 1:
         b = buffer.raw[0:120]
-        print("fake " + b.decode())
+        eprint("[local]" + b.decode())
         return b
     else:
         return None
