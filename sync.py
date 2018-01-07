@@ -69,7 +69,7 @@ class Sync:
             for psh in pshs:
                 hmax = max(hmax, psh[0])
             res = 1
-            if lenw[pshs] == 1:
+            if len(pshs) == 1:
                 res = self._bc.Update(pshs[0][1], False)
             elif pshs[0][0] > pshs[1][0]:
                 res = self._bc.Update(pshs[0][1], False)
