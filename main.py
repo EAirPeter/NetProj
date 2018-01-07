@@ -25,13 +25,13 @@ def GetEffectiveData(words):
 if __name__ == '__main__':
     configFilePath = argv[1]
     BC = BlockChain()
-    configParser = configparser.RawConfigParser()
+    configParser = configparser.RawConfigParser(allow_no_value=True)
     configParser.read(configFilePath)
     difficulty = float(configParser.get('overall-config', 'difficulty'))
     contentFilePath = configParser.get('overall-config', 'contentFilePath')
     localAddr = configParser.get('local-config', 'ipaddr')
     localPort = int(configParser.get('local-config', 'port'))
-    localId = bytes(configParser.get('local-config', 'id'), 'utf-8')
+    localId = bytes(configParser.get('local-config', 'id'), 'utf-8').ljust(4)
     RTO = float(configParser.get('local-config', 'RTO'))
 
     optNames = configParser.options('peer-config')
