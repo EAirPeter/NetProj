@@ -1,4 +1,3 @@
-from numpy import array_split
 from compute import GetMd5AsHex
 
 # block structure:
