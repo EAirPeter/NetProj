@@ -1,11 +1,12 @@
 import configparser
 import time
 import sync
+from sys import argv
 from blockchain import BlockChain
 from compute import GetValidNode
 from compute import GetMd5AsHex
 
-configFilePath = '.\\config.cfg'
+# configFilePath = '.\\config.cfg'
 contentFilePath = '.\\article.txt'
 logFilePath = '.\\log.txt'
 
@@ -24,6 +25,8 @@ def GetEffectiveData(words):
 
 
 if __name__ == '__main__':
+    configFilePath = argv[1]
+    print(configFilePath)
     BC = BlockChain()
     configParser = configparser.RawConfigParser()
     configParser.read(configFilePath)
