@@ -66,7 +66,9 @@ following table:
 |contentFilePath|Path of the input file      |
 
 The parameter difficulty should be a floating-point number between 0.0 and 
-1.0.
+1.0. Note that a larger value of difficulty results in a more inclusive 
+standard of block validity, making block generation easier, rather than 
+harder.
 
 The parameters to provide in the local-config section is listed in the
 following table:
