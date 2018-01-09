@@ -13,7 +13,7 @@ Run the following commands at the directory where the source code is located:
 mkdir build
 cd build
 cmake ..
-make ..
+make
 cd ..
 ```
 
